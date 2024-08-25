@@ -1,6 +1,7 @@
 import React from "react";
 import { Table as BootstrapTable, Form } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import TextArea from "antd/es/input/TextArea";
 
 export default function Table({ tableData, handleInputTableCell, toggle }) {
     const windowSize = window.innerWidth;
@@ -52,28 +53,14 @@ export default function Table({ tableData, handleInputTableCell, toggle }) {
                             <tr>
                                 <td></td>
                                 <td style={fontSizeStyle}>Description:</td>
-                                <td>
+                                <td colSpan={3}>
                                     <Form.Control
+                                        as="textarea"
+                                        rows={1}
                                         style={fontSizeStyle}
                                         type="text"
-                                        value={item.description1}
-                                        onChange={(e) => handleInputTableCell(e, item.id, "description1")}
-                                    />
-                                </td>
-                                <td>
-                                    <Form.Control
-                                        style={fontSizeStyle}
-                                        type="text"
-                                        value={item.description2}
-                                        onChange={(e) => handleInputTableCell(e, item.id, "description2")}
-                                    />
-                                </td>
-                                <td>
-                                    <Form.Control
-                                        style={fontSizeStyle}
-                                        type="text"
-                                        value={item.description3}
-                                        onChange={(e) => handleInputTableCell(e, item.id, "description3")}
+                                        value={item.description}
+                                        onChange={(e) => handleInputTableCell(e, item.id, "description")}
                                     />
                                 </td>
                             </tr>

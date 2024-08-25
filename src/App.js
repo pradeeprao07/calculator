@@ -6,7 +6,22 @@ import Table from "./Table";
 import { Button, Switch } from "antd";
 import { AiFillDelete } from "react-icons/ai";
 import { v4 as uuidv4 } from 'uuid';
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import "./style.css";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBz22-NfAKCTF8knGNqDiV2L79RbhlVx1I",
+  authDomain: "expensecalculator-8123.firebaseapp.com",
+  projectId: "expensecalculator-8123",
+  storageBucket: "expensecalculator-8123.appspot.com",
+  messagingSenderId: "1060999843305",
+  appId: "1:1060999843305:web:f858c76e337b69c7340f78",
+  measurementId: "G-8Q8K6DQYZE"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export const ThemeMode = createContext();
 
@@ -16,51 +31,69 @@ export default function App() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [popUp, setPopUp] = useState(false);
+  const [tableData, setTableData] = useState([
+    {
+      id: 1,
+      date: new Date().toDateString(),
+      description: "",
+      ravi: "",
+      prajwal: "",
+      ashwith: "",
+    },
+  ]);
   const [inputValue, setInputValue] = useState("");
-
-  const [savedInputValue, setSavedInputValue] = useState(() => {
-    const savedDataInWeb = localStorage.getItem("savedInputValue");
-    return savedDataInWeb ? JSON.parse(savedDataInWeb) : [];
-  });
-
-  const [tableData, setTableData] = useState(() => {
-    const savedTableData = localStorage.getItem("tableData");
-    if (savedTableData) {
-      try {
-        const parsedTableData = JSON.parse(savedTableData);
-        if (parsedTableData.length > 0) {
-          return parsedTableData.map((item) => ({
-            id: item.id || 1,
-            date: item.date || new Date().toDateString(),
-            description: item.description || "",
-            ravi: item.ravi || "",
-            prajwal: item.prajwal || "",
-            ashwith: item.ashwith || "",
-          }));
-        }
-      } catch (error) {
-        console.error("Failter to parse the data", error);
-      }
-    }
-    return [
-      {
-        id: 1,
-        date: new Date().toDateString(),
-        description: "",
-        ravi: "",
-        prajwal: "",
-        ashwith: "",
-      },
-    ];
-  });
+  const [savedInputValue, setSavedInputValue] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("tableData", JSON.stringify(tableData));
+    const saveTableDataInCloud = async () => {
+      try {
+        await setDoc(doc(db, "expenses", "tableData"), { tableData });
+      } catch (error) {
+        console.error("Failed to save tableData", error);
+      }
+    };
+    saveTableDataInCloud();
   }, [tableData]);
 
   useEffect(() => {
-    localStorage.setItem("savedInputValue", JSON.stringify(savedInputValue));
+    const saveSavedInputValueInCloud = async () => {
+      try {
+        await setDoc(doc(db, "expenses", "savedInputValue"), { value: savedInputValue });
+      } catch (error) {
+        console.error("Failed to save savedInputValue", error);
+      }
+    };
+    saveSavedInputValueInCloud();
   }, [savedInputValue]);
+
+  useEffect(() => {
+    const fetchTableDataFromCloud = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, "expenses", "tableData"));
+        if (docSnap.exists()) {
+          const fetchedData = docSnap.data().tableData;
+          setTableData(fetchedData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tableData", error);
+      }
+    };
+    fetchTableDataFromCloud();
+  }, []);
+
+  useEffect(() => {
+    const fetchSavedInputValueFromCloud = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, "expenses", "savedInputValue"));
+        if (docSnap.exists()) {
+          setSavedInputValue(docSnap.data().value);
+        }
+      } catch (error) {
+        console.error("Failed to fetch savedInputValue", error);
+      }
+    };
+    fetchSavedInputValueFromCloud();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -150,7 +183,6 @@ export default function App() {
 
   function handleSavingInputValue() {
     const newID = { id: uuidv4(), value: inputValue }
-    console.log(newID, 'newID')
     setSavedInputValue(copyOfInputValue => [...copyOfInputValue, newID])
     setInputValue('')
   }
@@ -158,8 +190,6 @@ export default function App() {
   function handleDelete(removeID) {
     setSavedInputValue(savedInputValue.filter((data) => data.id !== removeID));
   }
-
-  console.log("windowWidth", windowWidth);
 
   return (
     <ThemeMode.Provider value={toggle}>
