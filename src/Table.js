@@ -9,7 +9,7 @@ import { AiFillDelete } from "react-icons/ai";
 
 const newID = uuidv4();
 
-export default function Table({ buttonResponsivness, tableResponsivness, tableData, setTableData, savedTableData, setSavedTableData }) {
+export default function Table({ toggle, buttonResponsivness, tableResponsivness, tableData, setTableData, savedTableData, setSavedTableData }) {
     const windowSize = window.innerWidth;
     const fontSizeStyle = { fontSize: windowSize < 470 ? "14px" : "16px" };
     const [popUp, setPopUp] = useState(false);
@@ -110,7 +110,7 @@ export default function Table({ buttonResponsivness, tableResponsivness, tableDa
 
     return (
         <div className="container d-flex flex-column align-items-center justify-content-center">
-            <BootstrapTable striped bordered hover>
+            <BootstrapTable striped bordered hover className={toggle ? "table table-striped table-dark" : "table table-striped"}>
                 <thead>
                     <tr style={fontSizeStyle}>
                         <th>Ravichandran</th>
@@ -171,12 +171,13 @@ export default function Table({ buttonResponsivness, tableResponsivness, tableDa
                 <Button
                     type="primary"
                     className="btn-sm"
-                    style={{ ...buttonResponsivness, fontSize: "13px", marginTop: "-15px", marginBottom: "10px" }}
+                    style={{ ...buttonResponsivness, fontSize: "13px", marginTop: "-15px", marginBottom: "15px" }}
                     onClick={handleSavingTableData}
                 >
                     Save
                 </Button>
-                <BootstrapTable striped bordered hover className="mt-2" style={{ tableResponsivness }}>
+                <BootstrapTable striped bordered hover style={{ tableResponsivness }}
+                    className={toggle ? "table table-striped table-dark" : "table table-striped"}>
                     <thead>
                         <tr style={fontSizeStyle}>
                             <th>ID</th>
